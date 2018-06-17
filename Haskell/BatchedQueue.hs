@@ -9,7 +9,7 @@ module BatchedQueue (BatchedQueue) where
 
     instance Queue BatchedQueue where
         empty = BQ [] []
-        isEmpty (BQ f r) = null f
+        isEmpty (BQ f _) = null f
 
         snoc (BQ f r) x = check f (x : r)
 

@@ -5,6 +5,8 @@ public interface List<T>
     // : Operator
     List<T> prepend(T value);
 
+    List<T> concat(List<T> list);
+
     List<T> reverse();
 
     T head();

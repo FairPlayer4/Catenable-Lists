@@ -1,5 +1,7 @@
 public class PersistentList<T> implements List<T>
 {
+    private int size;
+
     private T head;
 
     private PersistentList<T> tail;
@@ -10,16 +12,19 @@ public class PersistentList<T> implements List<T>
         }
         else if (head == null) {
             // cannot add null head so set this to tail
+            size = tail.size;
             this.head = tail.head;
             this.tail = tail.tail;
         }
         else if (tail == null) {
             // head + empty tail
+            size = 1;
             this.head = head;
             this.tail = new PersistentList<>();
         }
         else {
             // normal case
+            size = 1 + tail.size;
             this.head = head;
             this.tail = tail;
         }
@@ -37,6 +42,17 @@ public class PersistentList<T> implements List<T>
     @Override
     public List<T> prepend(T value) {
         return new PersistentList<>(value, this);
+    }
+
+    @Override
+    public List<T> concat(List<T> list)
+    {
+        List<T> currentList = reverse();
+        while (!currentList.isEmpty()) {
+            list = list.prepend(currentList.head());
+            currentList = currentList.tail();
+        }
+        return list;
     }
 
     @Override
