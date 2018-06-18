@@ -1,4 +1,9 @@
-public class BankersQueue<T> implements Queue<T>
+package Lazy;
+
+import Interfaces.List;
+import Interfaces.Queue;
+
+public class LazyBankersQueue<T> implements Queue<T>
 {
     private int sizef;
 
@@ -8,7 +13,7 @@ public class BankersQueue<T> implements Queue<T>
 
     private List<T> r;
 
-    public BankersQueue(int sizef, List<T> f, int sizer, List<T> r)
+    public LazyBankersQueue(int sizef, List<T> f, int sizer, List<T> r)
     {
         this.sizef = sizef;
         this.f = f;
@@ -16,15 +21,15 @@ public class BankersQueue<T> implements Queue<T>
         this.r = r;
     }
 
-    public BankersQueue()
+    public LazyBankersQueue()
     {
-        f = new PersistentList<>();
-        r = new PersistentList<>();
+        f = new LazyPersistentList<>();
+        r = new LazyPersistentList<>();
     }
 
-    private static <T> BankersQueue<T> check(int sizef, List<T> f, int sizer, List<T> r) {
-        if (sizer <= sizef) return new BankersQueue<>(sizef, f, sizer, r);
-        else return new BankersQueue<>(sizef + sizer, f.concat(r.reverse()), 0, new PersistentList<>());
+    private static <T> LazyBankersQueue<T> check(int sizef, List<T> f, int sizer, List<T> r) {
+        if (sizer <= sizef) return new LazyBankersQueue<>(sizef, f, sizer, r);
+        else return new LazyBankersQueue<>(sizef + sizer, f.concat(r.reverse()), 0, new LazyPersistentList<>());
     }
 
     @Override

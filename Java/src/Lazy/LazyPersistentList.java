@@ -1,12 +1,17 @@
-public class PersistentList<T> implements List<T>
+package Lazy;
+
+import Interfaces.List;
+
+//TODO make concat and reverse lazy
+public class LazyPersistentList<T> implements List<T>
 {
     private int size;
 
     private T head;
 
-    private PersistentList<T> tail;
+    private LazyPersistentList<T> tail;
 
-    public PersistentList(T head, PersistentList<T> tail) {
+    public LazyPersistentList(T head, LazyPersistentList<T> tail) {
         if (head == null && (tail == null || tail.isEmpty())) {
             // empty list
         }
@@ -20,7 +25,7 @@ public class PersistentList<T> implements List<T>
             // head + empty tail
             size = 1;
             this.head = head;
-            this.tail = new PersistentList<>();
+            this.tail = new LazyPersistentList<>();
         }
         else {
             // normal case
@@ -30,7 +35,7 @@ public class PersistentList<T> implements List<T>
         }
     }
 
-    public PersistentList() {
+    public LazyPersistentList() {
         // empty list
     }
 
@@ -41,7 +46,7 @@ public class PersistentList<T> implements List<T>
 
     @Override
     public List<T> prepend(T value) {
-        return new PersistentList<>(value, this);
+        return new LazyPersistentList<>(value, this);
     }
 
     @Override
@@ -57,8 +62,8 @@ public class PersistentList<T> implements List<T>
 
     @Override
     public List<T> reverse() {
-        PersistentList<T> org = this;
-        List<T> rev = new PersistentList<>();
+        LazyPersistentList<T> org = this;
+        List<T> rev = new LazyPersistentList<>();
         while (org.tail != null) {
             rev = rev.prepend(org.head);
             org = org.tail;

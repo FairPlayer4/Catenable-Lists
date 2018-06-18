@@ -1,3 +1,8 @@
+package NonLazy;
+
+import Interfaces.List;
+import Interfaces.Queue;
+
 public class BatchedQueue<T> implements Queue<T>
 {
 
@@ -64,7 +69,7 @@ public class BatchedQueue<T> implements Queue<T>
     @Override
     public void toStringEfficient(StringBuilder sb)
     {
-
+        //TODO
     }
 
     @Override

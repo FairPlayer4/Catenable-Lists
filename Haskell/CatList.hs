@@ -1,15 +1,14 @@
 module CatList (CatList) where
     import Prelude hiding (head,tail,(++))
     import CatenableList
-    import BatchedQueue
     import Queue (Queue)
     import qualified Queue
 
-    data CatList q a = E | C a (q (CatList q a))
+    data CatList queue value = E | C value (queue (CatList queue value))
 
-    link (C x q) s = C x (Queue.snoc q s)
+    link (C x queue) s = C x (Queue.snoc queue s)
 
-    instance Queue q => CatenableList (CatList q) where
+    instance Queue queue => CatenableList (CatList queue) where
         empty = E
         isEmpty E = True
         isEmpty _ = False
@@ -22,10 +21,10 @@ module CatList (CatList) where
         snoc xs x = xs ++ C x Queue.empty
 
         head E = error "empty list"
-        head (C x q) = x
+        head (C x queue) = x
 
         tail E = error "empty list"
-        tail (C x q) = if (Queue.isEmpty q) then E else linkAll q 
-            where linkAll q = if (Queue.isEmpty qr) then t else (link t (linkAll qr)) 
-                    where   t = (Queue.head q) 
-                            qr = (Queue.tail q)
+        tail (C x queue) = if (Queue.isEmpty queue) then E else linkAll queue 
+            where linkAll queue = if (Queue.isEmpty queueTail) then queueHead else (link queueHead (linkAll queueTail)) 
+                    where   queueHead = (Queue.head queue) 
+                            queueTail = (Queue.tail queue)

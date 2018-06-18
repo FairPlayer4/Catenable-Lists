@@ -1,3 +1,5 @@
+package Interfaces;
+
 public interface List<T>
 {
     boolean isEmpty();
