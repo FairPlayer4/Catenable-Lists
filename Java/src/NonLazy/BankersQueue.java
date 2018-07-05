@@ -3,6 +3,9 @@ package NonLazy;
 import Interfaces.List;
 import Interfaces.Queue;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 public class BankersQueue<T> implements Queue<T>
 {
     private int sizef;
@@ -59,14 +62,42 @@ public class BankersQueue<T> implements Queue<T>
     }
 
     @Override
-    public void printWithoutConcat()
-    {
-        //TODO
+    public Iterator<T> iterator() {
+        return new BankersQueueIterator<>(this);
     }
 
-    @Override
-    public void toStringEfficient(StringBuilder sb)
-    {
-        //TODO
+
+    private static final class BankersQueueIterator<T> implements Iterator<T> {
+
+        private BankersQueue<T> bankersQueue;
+
+        private boolean firstList = true;
+
+        private Iterator<T> listIterator;
+
+        BankersQueueIterator(BankersQueue<T> bankersQueue) {
+            this.bankersQueue = bankersQueue;
+            if (bankersQueue != null && !bankersQueue.isEmpty()) {
+                listIterator = bankersQueue.f.iterator();
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (bankersQueue != null && !bankersQueue.isEmpty() && listIterator != null) {
+                if (listIterator.hasNext()) return true;
+                if (firstList) {
+                    firstList = false;
+                    listIterator = bankersQueue.r.reverse().iterator();
+                    return listIterator.hasNext();
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public T next() {
+            return listIterator.next();
+        }
     }
 }

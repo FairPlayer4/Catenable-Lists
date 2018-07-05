@@ -6,7 +6,7 @@ import NonLazy.CatList;
 public class PerformanceExamples
 {
 
-    private static final int charNumber = 5000;
+    private static final int charNumber = 1000;
 
     private static final int numberOfRuns = 100;
 
@@ -36,7 +36,7 @@ public class PerformanceExamples
         long badStringConcatenationRuntime = 0;
         long firstRuntime = 0;
         long secondRuntime = 0;
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < runs; i++) {
             ResultPerf<String> test1 = RunCatenableList(numberOfRuns);
             ResultPerf<String> test2 = RunCatenableList(numberOfRuns);
             ResultPerf<String> test3 = RunCatenableList(numberOfRuns);
@@ -46,7 +46,7 @@ public class PerformanceExamples
             ResultPerf<String> test7 = RunConcat(test5.CatList, test6.CatList);
             catListRuntime += (test1.Runtime + test2.Runtime + test3.Runtime + test4.Runtime + test5.Runtime + test6.Runtime + test7.Runtime);
             System.out.println(
-                    "CatList Concatentation Runtime for one iteration: " + (test1.Runtime + test2.Runtime + test3.Runtime + test4.Runtime + test5.Runtime + test6.Runtime + test7.Runtime) + "ms");
+                    "CatList Concatentation Runtime for one iteration: " + (test1.Runtime + test2.Runtime + test3.Runtime + test4.Runtime + test5.Runtime + test6.Runtime + test7.Runtime) + "ns");
 
             ResultPerfString<StringBuilder> testsb1 = PerformanceExamples
                     .RunStringBuilderConcatenation(numberOfRuns);
@@ -64,7 +64,7 @@ public class PerformanceExamples
                     .RunStringBuilderConcat(testsb5.ResultString, testsb6.ResultString);
             stringBuilderRuntime += (testsb1.Runtime + testsb2.Runtime + testsb3.Runtime + testsb4.Runtime + testsb5.Runtime + testsb6.Runtime + testsb7.Runtime);
             System.out.println(
-                    "StringBuilder Concatenation Runtime for one iteration: " + (testsb1.Runtime + testsb2.Runtime + testsb3.Runtime + testsb4.Runtime + testsb5.Runtime + testsb6.Runtime + testsb7.Runtime) + "ms");
+                    "StringBuilder Concatenation Runtime for one iteration: " + (testsb1.Runtime + testsb2.Runtime + testsb3.Runtime + testsb4.Runtime + testsb5.Runtime + testsb6.Runtime + testsb7.Runtime) + "ns");
 
             ResultPerfString<String> tests1 = RunBadStringConcatenation(numberOfRuns);
             ResultPerfString<String> tests2 = RunBadStringConcatenation(numberOfRuns);
@@ -78,30 +78,44 @@ public class PerformanceExamples
                     .RunBadStringConcat(tests5.ResultString, tests6.ResultString);
             badStringConcatenationRuntime += (tests1.Runtime + tests2.Runtime + tests3.Runtime + tests4.Runtime + tests5.Runtime + tests6.Runtime + tests7.Runtime);
             System.out.println(
-                    "Bad String Concatenation Runtime for one iteration: " + (tests1.Runtime + tests2.Runtime + tests3.Runtime + tests4.Runtime + tests5.Runtime + tests6.Runtime + tests7.Runtime) + "ms");
+                    "Bad String Concatenation Runtime for one iteration: " + (tests1.Runtime + tests2.Runtime + tests3.Runtime + tests4.Runtime + tests5.Runtime + tests6.Runtime + tests7.Runtime) + "ns");
 
-            long t1 = System.currentTimeMillis();
+            long t1 = System.nanoTime();
             System.out.println("Total Size of the String: " + ((CatList<String>)test7.CatList).getStringSize()); // Call to size is cached but counted in the benchmark
             String catListStringCreation = test7.CatList.toString();
-            long t2 = System.currentTimeMillis();
+            long t2 = System.nanoTime();
             String stringBuilderStringCreation = testsb7.ResultString.toString();
-            long t3 = System.currentTimeMillis();
+            long t3 = System.nanoTime();
             firstRuntime += t2 - t1;
             secondRuntime += t3 - t2;
-            System.out.println("CatList String Creation took: " + firstRuntime);
-            System.out.println("StringBuilder String Creation took: " + secondRuntime);
+            System.out.println("CatList String Creation took: " + firstRuntime + "ns");
+            System.out.println("StringBuilder String Creation took: " + secondRuntime + "ns");
             boolean finalStringEquals = catListStringCreation.equals(stringBuilderStringCreation) && catListStringCreation.equals(tests7.ResultString);
             System.out.println("All created strings (CatList, StringBuilder, Bad String Concatenation) are equal: " + finalStringEquals);
+            System.out.println("!!!Total Size of the String: " + catListStringCreation.length());
         }
-        System.out.println("Total CatList Concatenation Runtime for all iterations: " + (catListRuntime) + "ms");
-        System.out.println("Total StringBuilder Concatentation Runtime for all iterations: " + (stringBuilderRuntime) + "ms");
-        System.out.println("CatList String Creation Runtime: " + firstRuntime + "ms");
-        System.out.println("StringBuilder String Creation Runtime: " + secondRuntime + "ms");
-        System.out.println("Total CatList Runtime (String -> All Concatenations -> String): " + (catListRuntime + firstRuntime) + "ms");
-        System.out.println("Total StringBuilder Runtime (String -> All Concatenations -> String): " + (stringBuilderRuntime + secondRuntime) + "ms");
-        System.out.println("Total Bad String Concatenation Runtime (String -> All Concatenations -> String): " + (badStringConcatenationRuntime) + "ms");
+        System.out.println("Total CatList Concatenation Runtime for all iterations: " + (catListRuntime) / milliDiv + "ms");
+        System.out.println("Total StringBuilder Concatentation Runtime for all iterations: " + (stringBuilderRuntime) / milliDiv + "ms");
+        System.out.println("CatList String Creation Runtime: " + firstRuntime / milliDiv + "ms");
+        System.out.println("StringBuilder String Creation Runtime: " + secondRuntime / milliDiv + "ms");
+        System.out.println("Total CatList Runtime (String -> All Concatenations -> String): " + (catListRuntime + firstRuntime) / milliDiv + "ms");
+        System.out.println("Total StringBuilder Runtime (String -> All Concatenations -> String): " + (stringBuilderRuntime + secondRuntime) / milliDiv + "ms");
+        System.out.println("Total Bad String Concatenation Runtime (String -> All Concatenations -> String): " + (badStringConcatenationRuntime) / milliDiv + "ms");
+
+        System.out.println("Average CatList Concatenation Runtime for all iterations: " + (catListRuntime) / milliDivAverage + "ms");
+        System.out.println("Average StringBuilder Concatentation Runtime for all iterations: " + (stringBuilderRuntime) / milliDivAverage + "ms");
+        System.out.println("Average String Creation Runtime: " + firstRuntime / milliDivAverage + "ms");
+        System.out.println("Average String Creation Runtime: " + secondRuntime / milliDivAverage + "ms");
+        System.out.println("Average CatList Runtime (String -> All Concatenations -> String): " + (catListRuntime + firstRuntime) / milliDivAverage + "ms");
+        System.out.println("Average StringBuilder Runtime (String -> All Concatenations -> String): " + (stringBuilderRuntime + secondRuntime) / milliDivAverage + "ms");
+        System.out.println("Average Bad String Concatenation Runtime (String -> All Concatenations -> String): " + (badStringConcatenationRuntime) / milliDivAverage + "ms");
     }
-    
+
+    private static final double milliDiv = 1000000;
+
+    private static final int runs = 100;
+
+    private static final double milliDivAverage = milliDiv * 100;
 
     private static class ResultPerf<T>
     {
@@ -112,7 +126,7 @@ public class PerformanceExamples
         {
             Runtime = runtime;
             CatList = catList;
-            System.out.println("CatList concatenation took: " + runtime + "ms");
+            System.out.println("CatList concatenation took: " + runtime + "ns");
         }
     }
 
@@ -121,44 +135,45 @@ public class PerformanceExamples
         final long Runtime;
         final T ResultString;
 
-        ResultPerfString(long runtime, T resultString)
+        ResultPerfString(long runtime, T resultString, boolean stringBuilder)
         {
             Runtime = runtime;
             ResultString = resultString;
-            System.out.println("String concatenation took: " + runtime + "ms");
+            String string = stringBuilder ? "StringBuilder" : "Bad String";
+            System.out.println(string + " concatenation took: " + runtime + "ns");
         }
     }
 
     private static ResultPerf<String> RunConcat(CatenableList<String> first, CatenableList<String> second) {
-        long t1 = System.currentTimeMillis();
+        long t1 = System.nanoTime();
         CatenableList<String> resultList = first.concat(second);
-        long t2 = System.currentTimeMillis();
+        long t2 = System.nanoTime();
         return new ResultPerf<>(t2 - t1, resultList);
     }
 
     private static ResultPerf<String> RunCatenableList(int times)
     {
-        long t1 = System.currentTimeMillis();
+        long t1 = System.nanoTime();
         CatenableList<String> catList = new CatList<>();
         for (int i = 0; i < times; i++) {
             catList = catList.concat(l1).concat(l2).concat(l3).concat(l4).concat(l5).concat(l6).concat(l7).concat(l8)
                              .concat(l9);
         }
-        long t2 = System.currentTimeMillis();
+        long t2 = System.nanoTime();
         return new ResultPerf<>(t2 - t1, catList);
     }
 
     private static ResultPerfString<StringBuilder> RunStringBuilderConcat(StringBuilder sb1, StringBuilder sb2) {
-        long t1 = System.currentTimeMillis();
+        long t1 = System.nanoTime();
         StringBuilder sb = new StringBuilder(sb1); // Persistence
         sb.append(sb2);
-        long t2 = System.currentTimeMillis();
-        return new ResultPerfString<>(t2 - t1, sb);
+        long t2 = System.nanoTime();
+        return new ResultPerfString<>(t2 - t1, sb, true);
     }
 
     private static ResultPerfString<StringBuilder> RunStringBuilderConcatenation(int times)
     {
-        long t1 = System.currentTimeMillis();
+        long t1 = System.nanoTime();
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < times; i++) {
             stringBuilder.append(string1);
@@ -171,25 +186,25 @@ public class PerformanceExamples
             stringBuilder.append(string8);
             stringBuilder.append(string9);
         }
-        long t2 = System.currentTimeMillis();
-        return new ResultPerfString<>(t2 - t1, stringBuilder);
+        long t2 = System.nanoTime();
+        return new ResultPerfString<>(t2 - t1, stringBuilder, true);
     }
 
     private static ResultPerfString<String> RunBadStringConcat(String s1, String s2) {
-        long t1 = System.currentTimeMillis();
+        long t1 = System.nanoTime();
         String resultString = s1 + s2; // Is transformed to StringBuilder by compiler
-        long t2 = System.currentTimeMillis();
-        return new ResultPerfString<>(t2 - t1, resultString);
+        long t2 = System.nanoTime();
+        return new ResultPerfString<>(t2 - t1, resultString,false);
     }
 
     private static ResultPerfString<String> RunBadStringConcatenation(int times)
     {
-        long t1 = System.currentTimeMillis();
+        long t1 = System.nanoTime();
         String resultString = "";
         for (int i = 0; i < times; i++) {
             resultString += string1 + string2 + string3 + string4 + string5 + string6 + string7 + string8 + string9; // Is transformed to StringBuilder by compiler
         }
-        long t2 = System.currentTimeMillis();
-        return new ResultPerfString<>(t2 - t1, resultString);
+        long t2 = System.nanoTime();
+        return new ResultPerfString<>(t2 - t1, resultString, false);
     }
 }

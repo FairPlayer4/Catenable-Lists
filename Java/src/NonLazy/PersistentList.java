@@ -2,6 +2,9 @@ package NonLazy;
 
 import Interfaces.List;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 public class PersistentList<T> implements List<T>
 {
     private int size;
@@ -88,5 +91,32 @@ public class PersistentList<T> implements List<T>
         if (head == null) return "";
         if (tail == null || tail.isEmpty()) return head.toString();
         return head + ",\n" + tail;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new ListIterator<>(this);
+    }
+
+    private static final class ListIterator<T> implements Iterator<T> {
+
+        private PersistentList<T> persistentList;
+
+        ListIterator(PersistentList<T> persistentList) {
+            this.persistentList = persistentList;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return persistentList != null && !persistentList.isEmpty();
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) throw new NoSuchElementException();
+            T value = persistentList.head;
+            persistentList = persistentList.tail;
+            return value;
+        }
     }
 }

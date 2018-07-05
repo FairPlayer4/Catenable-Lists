@@ -1,6 +1,6 @@
 package Interfaces;
 
-public interface CatenableList<T>
+public interface CatenableList<T> extends Iterable<T>
 {
     boolean isEmpty();
 
@@ -13,9 +13,5 @@ public interface CatenableList<T>
     T head();
 
     CatenableList<T> tail();
-
-    void printWithoutConcat();
-
-    void toStringEfficient(StringBuilder sb);
 
 }

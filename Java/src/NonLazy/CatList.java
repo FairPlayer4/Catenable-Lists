@@ -3,6 +3,9 @@ package NonLazy;
 import Interfaces.CatenableList;
 import Interfaces.Queue;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 /**
  * @param <T>
  */
@@ -13,7 +16,7 @@ public class CatList<T> implements CatenableList<T> {
 
     public CatList(T value) {
         this.value = value;
-        catListQueue = new BankersQueue<>();
+        catListQueue = new BatchedQueue<>();
     }
 
     private CatList(T value, Queue<CatList<T>> catListQueue) {
@@ -71,36 +74,20 @@ public class CatList<T> implements CatenableList<T> {
     }
 
     @Override
-    public void toStringEfficient(StringBuilder sb) {
-        if (isEmpty()) return;
-        sb.append(head());
-        Queue<CatList<T>> r = catListQueue;
-        while (!r.isEmpty()) {
-            r.head().toStringEfficient(sb);
-            r = r.tail();
-        }
-    }
-
-    @Override
-    public void printWithoutConcat() {
-        if (isEmpty()) return;
-        System.out.print(head());
-        CatenableList<T> tail = tail();
-        if (tail.isEmpty()) return;
-        System.out.print("\n");
-        tail.printWithoutConcat();
-    }
-
-    @Override
     public String toString() {
-        if (isEmpty()) return "";
-        StringBuilder sb = new StringBuilder(getStringSize());
-        sb.append(head());
-        Queue<CatList<T>> r = catListQueue;
-        while (!r.isEmpty()) {
-            r.head().toStringEfficient(sb);
-            r = r.tail();
+        StringBuilder sb = new StringBuilder(getStringSize() + 1);
+        //sb.append("[");
+        for (T value : this) {
+            //System.out.println(value);
+            sb.append(value);
+            //sb.append(", ");
         }
+        //int i = sb.lastIndexOf(", ");
+        //if (i != -1) {
+        //    sb.deleteCharAt(i);
+        //    sb.deleteCharAt(i - 1);
+        //}
+        //sb.append("]");
         return sb.toString();
     }
 
@@ -108,18 +95,64 @@ public class CatList<T> implements CatenableList<T> {
 
     public int getStringSize() {
         if (stringSize == -1) {
-            if (isEmpty()) stringSize = 0;
-            else {
-                int result = value == null ? 0 : value.toString().length();
-                Queue<CatList<T>> r = catListQueue;
-                while (!r.isEmpty()) {
-                    result += r.head().getStringSize();
-                    r = r.tail();
-                }
-                stringSize = result;
+            stringSize = 0;//2;
+            for (T value : this) {
+                stringSize += value.toString().length();// + 2;
             }
         }
         return stringSize;
     }
 
+    @Override
+    public Iterator<T> iterator() {
+        return new CatListIterator<>(this);
+    }
+
+    private static final class CatListIterator<T> implements
+            Iterator<T> {
+
+        private boolean initial = true;
+
+        private Iterator<CatList<T>> queueIterator;
+
+        private Iterator<T> currentSubIterator;
+
+        private CatList<T> catList;
+
+        CatListIterator(CatList<T> catList) {
+            this.catList = catList;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if (catList == null || catList.isEmpty()) return false;
+            if (initial) return true;
+            if (queueIterator == null || currentSubIterator == null) return false;
+            return queueIterator.hasNext() || currentSubIterator.hasNext();
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            if (initial) {
+                initial = false;
+                queueIterator = catList.catListQueue.iterator();
+                if (queueIterator.hasNext()) {
+                    currentSubIterator = queueIterator.next().iterator();
+                }
+                return catList.value;
+            }
+            if (currentSubIterator.hasNext()) {
+                return currentSubIterator.next();
+            } else if (queueIterator.hasNext()) {
+                currentSubIterator = queueIterator.next().iterator();
+                if (currentSubIterator.hasNext()) {
+                    return currentSubIterator.next();
+                }
+            }
+            throw new NoSuchElementException();
+        }
+    }
 }

@@ -1,6 +1,6 @@
 package Interfaces;
 
-public interface Queue<T>
+public interface Queue<T> extends Iterable<T>
 {
 
     boolean isEmpty();
@@ -10,9 +10,5 @@ public interface Queue<T>
     T head();
 
     Queue<T> tail();
-
-    void printWithoutConcat();
-
-    void toStringEfficient(StringBuilder sb);
 
 }

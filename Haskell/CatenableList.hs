@@ -1,13 +1,13 @@
 module CatenableList (CatenableList(..)) where
     import Prelude hiding (head,tail,(++))
 
-    class CatenableList c where
-        empty :: c a
-        isEmpty :: c a -> Bool
+    class CatenableList catenableList where
+        empty :: catenableList value
+        isEmpty :: catenableList value -> Bool
 
-        cons :: a -> c a -> c a
-        snoc :: c a -> a -> c a
-        (++) :: c a -> c a -> c a
+        cons :: value -> catenableList value -> catenableList value
+        snoc :: catenableList value -> value -> catenableList value
+        (++) :: catenableList value -> catenableList value -> catenableList value
 
-        head :: c a -> a
-        tail :: c a -> c a
+        head :: catenableList value -> value
+        tail :: catenableList value -> catenableList value
