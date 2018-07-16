@@ -16,6 +16,7 @@ public class CatList<T> implements CatenableList<T> {
 
     public CatList(T value) {
         this.value = value;
+        //Using BatchedQueue here but any other Queue implementation can be used
         catListQueue = new BatchedQueue<>();
     }
 
@@ -27,14 +28,14 @@ public class CatList<T> implements CatenableList<T> {
     public CatList() {
     }
 
-    private static <T> CatList<T> link(CatList<T> catList1, CatList<T> catList2) {
-        return new CatList<>(catList1.value, catList1.catListQueue.snoc(catList2));
+    private CatList<T> link(CatList<T> catList) {
+        return new CatList<>(value, catListQueue.snoc(catList));
     }
 
-    private static <T> CatList<T> linkAll(Queue<CatList<T>> catListQueue) {
+    private CatList<T> linkAll(Queue<CatList<T>> catListQueue) {
         Queue<CatList<T>> tail = catListQueue.tail();
         if (tail.isEmpty()) return catListQueue.head();
-        else return link(catListQueue.head(), linkAll(tail));
+        else return catListQueue.head().link(linkAll(tail));
     }
 
     @Override
@@ -57,7 +58,7 @@ public class CatList<T> implements CatenableList<T> {
         if (isEmpty()) return catenableList;
         if (catenableList == null || catenableList.isEmpty()) return this;
         if (!(catenableList instanceof CatList)) throw new RuntimeException("invalid CatenableList implementation");
-        return link(this, (CatList<T>) catenableList);
+        return link((CatList<T>) catenableList);
     }
 
     @Override
@@ -76,18 +77,9 @@ public class CatList<T> implements CatenableList<T> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getStringSize() + 1);
-        //sb.append("[");
         for (T value : this) {
-            //System.out.println(value);
             sb.append(value);
-            //sb.append(", ");
         }
-        //int i = sb.lastIndexOf(", ");
-        //if (i != -1) {
-        //    sb.deleteCharAt(i);
-        //    sb.deleteCharAt(i - 1);
-        //}
-        //sb.append("]");
         return sb.toString();
     }
 
@@ -95,9 +87,9 @@ public class CatList<T> implements CatenableList<T> {
 
     public int getStringSize() {
         if (stringSize == -1) {
-            stringSize = 0;//2;
+            stringSize = 0;
             for (T value : this) {
-                stringSize += value.toString().length();// + 2;
+                stringSize += value.toString().length();
             }
         }
         return stringSize;

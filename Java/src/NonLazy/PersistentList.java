@@ -54,23 +54,19 @@ public class PersistentList<T> implements List<T>
     @Override
     public List<T> concat(List<T> list)
     {
-        List<T> currentList = reverse();
-        while (!currentList.isEmpty()) {
-            list = list.prepend(currentList.head());
-            currentList = currentList.tail();
+        for (T value : reverse()) {
+            list = list.prepend(value);
         }
         return list;
     }
 
     @Override
     public List<T> reverse() {
-        PersistentList<T> org = this;
-        List<T> rev = new PersistentList<>();
-        while (org.tail != null) {
-            rev = rev.prepend(org.head);
-            org = org.tail;
+        List<T> reversedList = new PersistentList<>();
+        for (T value : this) {
+            reversedList = reversedList.prepend(value);
         }
-        return rev;
+        return reversedList;
     }
 
     @Override

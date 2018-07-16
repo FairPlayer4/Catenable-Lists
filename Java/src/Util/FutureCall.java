@@ -3,7 +3,7 @@ package Util;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-public class LazyCall<T> {
+public class FutureCall<T> {
 
     private boolean available;
 
@@ -11,12 +11,12 @@ public class LazyCall<T> {
 
     private Future<T> future;
 
-    public LazyCall(T object) {
+    public FutureCall(T object) {
         this.object = object;
         available = true;
     }
 
-    public LazyCall(Callable<T> callable) {
+    public FutureCall(Callable<T> callable) {
         future = TaskUtils.EXECUTOR.submit(callable);
     }
 

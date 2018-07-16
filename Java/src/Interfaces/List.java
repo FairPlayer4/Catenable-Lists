@@ -1,7 +1,6 @@
 package Interfaces;
 
-public interface List<T> extends Iterable<T>
-{
+public interface List<T> extends Iterable<T> {
     boolean isEmpty();
 
     // : Operator

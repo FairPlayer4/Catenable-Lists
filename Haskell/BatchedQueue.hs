@@ -2,19 +2,23 @@ module BatchedQueue (BatchedQueue) where
     import Prelude hiding (head, tail)
     import Queue
 
-    data BatchedQueue a = BQ [a] [a]
+    data BatchedQueue value = BQ [value] [value]
 
-    check [] r = BQ (reverse r) []
-    check f r = BQ f r
+    -- check not used instead we use pattern matching
+    
 
     instance Queue BatchedQueue where
         empty = BQ [] []
-        isEmpty (BQ f _) = null f
-
-        snoc (BQ f r) x = check f (x : r)
+        -- if the front is empty the rear must also be empty
+        isEmpty (BQ front _) = null front
+        -- if the front is empty we insert at the front otherwise at the rear
+        snoc (BQ [] rear) x = BQ (x : front) rear
+        snoc (BQ front rear) x = BQ front (x : rear)
 
         head (BQ [] _) = error "empty queue"
-        head (BQ (x : f) r) = x
-
+        head (BQ (value : front) rear) = value
+        -- if the front only contains one element we remove it 
+        -- and also reverse the rear and put it at the front
         tail (BQ [] _) = error "empty queue"
-        tail (BQ (x : f) r) = check f r
+        tail (BQ (value : []) rear) = BQ (reverse rear) []
+        tail (BQ (value : front) rear) = BQ front rear

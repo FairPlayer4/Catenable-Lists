@@ -1,20 +1,20 @@
 package Lazy;
 
-import Interfaces.LazyList;
-import Util.LazyCall;
+import Interfaces.FutureList;
+import Interfaces.List;
+import Util.FutureCall;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-//TODO make concat and reverse lazy
-public class LazyPersistentList<T extends LazyCall<?>> implements LazyList<T> {
+public class FuturePersistentList<T> implements FutureList<T> {
     private int size;
 
     private T head;
 
-    private LazyCall<LazyList<T>> tail;
+    private List<T> tail;
 
-    private LazyPersistentList(T head, LazyPersistentList<T> tail) {
+    private FuturePersistentList(T head, FuturePersistentList<T> tail) {
         if (head == null && (tail == null || tail.isEmpty())) {
             // empty list
         } else if (head == null) {
@@ -26,16 +26,16 @@ public class LazyPersistentList<T extends LazyCall<?>> implements LazyList<T> {
             // head + empty tail
             size = 1;
             this.head = head;
-            this.tail = new LazyCall<>(new LazyPersistentList<>());
+            this.tail = new FuturePersistentList<>();
         } else {
             // normal case
             size = 1 + tail.size;
             this.head = head;
-            this.tail = new LazyCall<>(tail);
+            this.tail = tail;
         }
     }
 
-    public LazyPersistentList() {
+    public FuturePersistentList() {
         // empty list
     }
 
@@ -45,31 +45,49 @@ public class LazyPersistentList<T extends LazyCall<?>> implements LazyList<T> {
     }
 
     @Override
-    public LazyCall<LazyList<T>> prepend(T value) {
+    public FutureList<T> prepend(T value) {
 
-        return new LazyCall<>(new LazyPersistentList<>(value, this));
+        return new FuturePersistentList<>(value, this);
     }
 
     @Override
-    public LazyCall<LazyList<T>> concat(LazyList<T> list) {
-        return new LazyCall<>(() -> {
-            LazyList<T> currentList = list;
-            for (T value : reverse().get()) {
-                currentList = currentList.prepend(value).get();
+    public FutureCall<List<T>> futureConcat(List<T> list) {
+        return new FutureCall<>(() -> {
+            List<T> currentList = list;
+            for (T value : reverse()) {
+                currentList = currentList.prepend(value);
             }
             return currentList;
         });
     }
 
     @Override
-    public LazyCall<LazyList<T>> reverse() {
-        return new LazyCall<>(() -> {
-            LazyList<T> rev = new LazyPersistentList<>();
+    public FutureCall<List<T>> futureReverse() {
+        return new FutureCall<>(() -> {
+            List<T> reversedList = new FuturePersistentList<>();
             for (T value : this) {
-                rev = rev.prepend(value).get();
+                reversedList = reversedList.prepend(value);
             }
-            return rev;
+            return reversedList;
         });
+    }
+
+    @Override
+    public List<T> concat(List<T> list)
+    {
+        for (T value : reverse()) {
+            list = list.prepend(value);
+        }
+        return list;
+    }
+
+    @Override
+    public List<T> reverse() {
+        List<T> reversedList = new FuturePersistentList<>();
+        for (T value : this) {
+            reversedList = reversedList.prepend(value);
+        }
+        return reversedList;
     }
 
     @Override
@@ -79,7 +97,7 @@ public class LazyPersistentList<T extends LazyCall<?>> implements LazyList<T> {
     }
 
     @Override
-    public LazyCall<LazyList<T>> tail() {
+    public List<T> tail() {
         if (tail == null) throw new RuntimeException("empty list");
         return tail;
     }
@@ -95,7 +113,7 @@ public class LazyPersistentList<T extends LazyCall<?>> implements LazyList<T> {
         int i = sb.lastIndexOf(", ");
         if (i != -1) {
             sb.deleteCharAt(i);
-            sb.deleteCharAt(i + 1);
+            sb.deleteCharAt(i - 1);
         }
         sb.append("]");
         return sb.toString();
@@ -106,11 +124,11 @@ public class LazyPersistentList<T extends LazyCall<?>> implements LazyList<T> {
         return new ListIterator<>(this);
     }
 
-    private static final class ListIterator<T extends LazyCall<?>> implements Iterator<T> {
+    private static final class ListIterator<T> implements Iterator<T> {
 
-        private LazyList<T> persistentList;
+        private List<T> persistentList;
 
-        ListIterator(LazyList<T> persistentList) {
+        ListIterator(List<T> persistentList) {
             this.persistentList = persistentList;
         }
 
@@ -123,7 +141,7 @@ public class LazyPersistentList<T extends LazyCall<?>> implements LazyList<T> {
         public T next() {
             if (!hasNext()) throw new NoSuchElementException();
             T value = persistentList.head();
-            persistentList = persistentList.tail().get();
+            persistentList = persistentList.tail();
             return value;
         }
     }

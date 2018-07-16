@@ -1,7 +1,6 @@
 package Interfaces;
 
-public interface CatenableList<T> extends Iterable<T>
-{
+public interface CatenableList<T> extends Iterable<T> {
     boolean isEmpty();
 
     CatenableList<T> cons(T value);
@@ -13,5 +12,4 @@ public interface CatenableList<T> extends Iterable<T>
     T head();
 
     CatenableList<T> tail();
-
 }

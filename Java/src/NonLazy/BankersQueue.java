@@ -4,35 +4,34 @@ import Interfaces.List;
 import Interfaces.Queue;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 public class BankersQueue<T> implements Queue<T>
 {
     private int sizef;
 
-    private List<T> f;
+    private List<T> front;
 
     private int sizer;
 
-    private List<T> r;
+    private List<T> rear;
 
-    public BankersQueue(int sizef, List<T> f, int sizer, List<T> r)
+    private BankersQueue(int sizef, List<T> front, int sizer, List<T> rear)
     {
         this.sizef = sizef;
-        this.f = f;
+        this.front = front;
         this.sizer = sizer;
-        this.r = r;
+        this.rear = rear;
     }
 
     public BankersQueue()
     {
-        f = new PersistentList<>();
-        r = new PersistentList<>();
+        front = new PersistentList<>();
+        rear = new PersistentList<>();
     }
 
-    private static <T> BankersQueue<T> check(int sizef, List<T> f, int sizer, List<T> r) {
-        if (sizer <= sizef) return new BankersQueue<>(sizef, f, sizer, r);
-        else return new BankersQueue<>(sizef + sizer, f.concat(r.reverse()), 0, new PersistentList<>());
+    private BankersQueue<T> check(int sizef, List<T> front, int sizer, List<T> rear) {
+        if (sizer <= sizef) return new BankersQueue<>(sizef, front, sizer, rear);
+        return new BankersQueue<>(sizef + sizer, front.concat(rear.reverse()), 0, new PersistentList<>());
     }
 
     @Override
@@ -44,21 +43,21 @@ public class BankersQueue<T> implements Queue<T>
     @Override
     public Queue<T> snoc(T value)
     {
-        return check(sizef, f, (sizer+1), r.prepend(value));
+        return check(sizef, front, (sizer+1), rear.prepend(value));
     }
 
     @Override
     public T head()
     {
-        if (f.isEmpty()) throw new RuntimeException("empty queue");
-        return f.head();
+        if (front.isEmpty()) throw new RuntimeException("empty queue");
+        return front.head();
     }
 
     @Override
     public Queue<T> tail()
     {
-        if (f.isEmpty()) throw new RuntimeException("empty queue");
-        return check(sizef-1, f.tail(), sizer, r);
+        if (front.isEmpty()) throw new RuntimeException("empty queue");
+        return check(sizef-1, front.tail(), sizer, rear);
     }
 
     @Override
@@ -78,7 +77,7 @@ public class BankersQueue<T> implements Queue<T>
         BankersQueueIterator(BankersQueue<T> bankersQueue) {
             this.bankersQueue = bankersQueue;
             if (bankersQueue != null && !bankersQueue.isEmpty()) {
-                listIterator = bankersQueue.f.iterator();
+                listIterator = bankersQueue.front.iterator();
             }
         }
 
@@ -88,7 +87,7 @@ public class BankersQueue<T> implements Queue<T>
                 if (listIterator.hasNext()) return true;
                 if (firstList) {
                     firstList = false;
-                    listIterator = bankersQueue.r.reverse().iterator();
+                    listIterator = bankersQueue.rear.reverse().iterator();
                     return listIterator.hasNext();
                 }
             }

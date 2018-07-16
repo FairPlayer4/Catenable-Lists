@@ -1,8 +1,6 @@
 package Interfaces;
 
-public interface Queue<T> extends Iterable<T>
-{
-
+public interface Queue<T> extends Iterable<T> {
     boolean isEmpty();
 
     Queue<T> snoc(T value);
@@ -10,5 +8,4 @@ public interface Queue<T> extends Iterable<T>
     T head();
 
     Queue<T> tail();
-
 }

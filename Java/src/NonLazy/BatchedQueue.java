@@ -4,49 +4,48 @@ import Interfaces.List;
 import Interfaces.Queue;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 public class BatchedQueue<T> implements Queue<T> {
 
-    private final List<T> firstList;
+    private final List<T> front;
 
-    private final List<T> secondList;
+    private final List<T> rear;
 
-    private BatchedQueue(List<T> firstList, List<T> secondList) {
-        this.firstList = firstList == null ? new PersistentList<>() : firstList;
-        this.secondList = secondList == null ? new PersistentList<>() : secondList;
+    private BatchedQueue(List<T> front, List<T> rear) {
+        this.front = front == null ? new PersistentList<>() : front;
+        this.rear = rear == null ? new PersistentList<>() : rear;
     }
 
     public BatchedQueue() {
-        firstList = new PersistentList<>();
-        secondList = new PersistentList<>();
+        front = new PersistentList<>();
+        rear = new PersistentList<>();
     }
 
-    private static <T> Queue<T> check(List<T> firstList, List<T> secondList) {
-        if (firstList == null || firstList.isEmpty()) return new BatchedQueue<>(secondList.reverse(), null);
-        return new BatchedQueue<>(firstList, secondList);
+    private Queue<T> check(List<T> front, List<T> rear) {
+        if (front == null || front.isEmpty()) return new BatchedQueue<>(rear.reverse(), null);
+        return new BatchedQueue<>(front, rear);
     }
 
     @Override
     public Queue<T> snoc(T value) {
-        return check(firstList, secondList.prepend(value));
+        return check(front, rear.prepend(value));
     }
 
     @Override
     public boolean isEmpty() {
-        return firstList.isEmpty();
+        return front.isEmpty();
     }
 
     @Override
     public T head() {
-        if (firstList.isEmpty()) throw new RuntimeException("empty queue");
-        return firstList.head();
+        if (front.isEmpty()) throw new RuntimeException("empty queue");
+        return front.head();
     }
 
     @Override
     public Queue<T> tail() {
-        if (firstList.isEmpty()) throw new RuntimeException("empty queue");
-        return check(firstList.tail(), secondList);
+        if (front.isEmpty()) throw new RuntimeException("empty queue");
+        return check(front.tail(), rear);
     }
 
     @Override
@@ -67,14 +66,14 @@ public class BatchedQueue<T> implements Queue<T> {
 
         private BatchedQueue<T> batchedQueue;
 
-        private boolean firstList = true;
+        private boolean iterateFront = true;
 
         private Iterator<T> listIterator;
 
         BatchedQueueIterator(BatchedQueue<T> batchedQueue) {
             this.batchedQueue = batchedQueue;
             if (batchedQueue != null && !batchedQueue.isEmpty()) {
-                listIterator = batchedQueue.firstList.iterator();
+                listIterator = batchedQueue.front.iterator();
             }
         }
 
@@ -82,9 +81,9 @@ public class BatchedQueue<T> implements Queue<T> {
         public boolean hasNext() {
             if (batchedQueue != null && !batchedQueue.isEmpty() && listIterator != null) {
                 if (listIterator.hasNext()) return true;
-                else if (firstList) {
-                    firstList = false;
-                    listIterator = batchedQueue.secondList.reverse().iterator();
+                else if (iterateFront) {
+                    iterateFront = false;
+                    listIterator = batchedQueue.rear.reverse().iterator();
                     return listIterator.hasNext();
                 }
             }
